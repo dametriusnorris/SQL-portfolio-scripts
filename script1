@@ -1,0 +1,71 @@
+#SQL Scripts
+
+use Northwind;
+go
+
+#Selecting columns from tables and joining with another table.
+
+select ProductID, ProductName, CategoryName
+from Products join Categories on
+Products.CategoryID = Categories.CategoryID
+where UPPER(CategoryName) in ('PRODUCE', 'SEAFOOD')
+
+#Pulling average salary from Employees
+
+select avg(salary) from Employees
+
+#More scripts using select, where clause
+
+select LastName, FirstName, Title, Salary from Employees
+where salary > (select avg(salary) from Employees)
+
+select 'LONDON' as Office_city, avg(salary) as average from Employees where 
+upper(City) = 'LONDON'
+
+union select 'SEATTLE' as Office_city2, avg(salary) as average from Employees where 
+upper(City) = 'SEATTLE'
+
+
+
+select productName from Products
+where productid in
+(select ProductID from OrderDetails where Quantity >= 120)
+
+#Select Distinct
+
+select companyName, city
+from Suppliers
+where upper(city) in (select DISTINCT upper(city) from Employees)
+
+select distinct lastname, firstname, regionDescription from
+Employees e join EmployeeTerritories et
+on
+e.EmployeeID = et.EmployeeID
+join Territories t
+on
+et.TerritoryID = t.TerritoryID
+join Region r
+on
+t.RegionID = r.RegionID
+where RegionDescription = 'Western'
+
+select CompanyName, city, orderid
+from Customers c left join orders o
+on c.CustomerID = o.CustomerID
+where city in ('Paris', 'Madrid')
+
+
+select companyname, phone from Shippers
+union
+select companyname, phone from Suppliers
+order by CompanyName
+
+select lastname, firstname, salary, country
+from Employees e1
+where salary > (select avg(salary) from Employees e2 where e1.Country = e2.Country)
+#Joins
+select productName, country
+from Products p join Suppliers s
+on p.SupplierID = s.SupplierID
+where Country in ('USA', 'Norway')
+order by ProductName
