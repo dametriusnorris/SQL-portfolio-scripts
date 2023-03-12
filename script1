@@ -1,20 +1,21 @@
 #SQL Scripts
+#Joins, aggreagate functions, common clauses.
 
 use Northwind;
 go
 
-#Selecting columns from tables and joining with another table.
+#Selecting columns from tables and joining with another table. 
 
 select ProductID, ProductName, CategoryName
 from Products join Categories on
 Products.CategoryID = Categories.CategoryID
 where UPPER(CategoryName) in ('PRODUCE', 'SEAFOOD')
 
-#Pulling average salary from Employees
+# Pulling average salary from Employees 
 
 select avg(salary) from Employees
 
-#More scripts using select, where clause
+# More scripts using select, where clause 
 
 select LastName, FirstName, Title, Salary from Employees
 where salary > (select avg(salary) from Employees)
@@ -63,6 +64,7 @@ order by CompanyName
 select lastname, firstname, salary, country
 from Employees e1
 where salary > (select avg(salary) from Employees e2 where e1.Country = e2.Country)
+
 #Joins
 select productName, country
 from Products p join Suppliers s
