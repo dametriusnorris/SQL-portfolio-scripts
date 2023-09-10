@@ -1,42 +1,75 @@
 #SQL Scripts
 #Joins, aggreagate functions, common clauses.
 
+# Sets the current database to "Northwind." This allows to work excusively in the specified
+# database ensuring data isolation for the organization.
+
 use Northwind;
 go
 
-#Selecting columns from tables and joining with another table. 
+# Retrieves product details and their categories for products designated as 'PRODUCE' or
+# 'SEAFOOD.' This allows for analysis to specific product categories regarding inventory 
+# managment and decision-making.
 
 select ProductID, ProductName, CategoryName
 from Products join Categories on
 Products.CategoryID = Categories.CategoryID
 where UPPER(CategoryName) in ('PRODUCE', 'SEAFOOD')
 
-# Pulling average salary from Employees 
+# Pulling average salary from Employees, giving insight to financial planning and
+# reporting purposes.
 
 select avg(salary) from Employees
 
-# More scripts using select, where clause 
+# Retrieves last name, first name, and salary from 'Employees' table where salary is
+# greater than average salary of all employees. This will recognize high salaried 
+# employees or potential candidates for HR decision making or overall workforce
+# planning within organization.
 
 select LastName, FirstName, Title, Salary from Employees
 where salary > (select avg(salary) from Employees)
 
+# This query selects 'LONDON' AS "Office_city" and calculates the average salary of
+# employees with a matching city of London in "Employees" table. This can help with
+# insights on regional compensation strategies and cost-of-living adjustments to 
+# ensure employees in this region receive competitive compensation.
+
 select 'LONDON' as Office_city, avg(salary) as average from Employees where 
 upper(City) = 'LONDON'
+
+# Using the union operator to combine two queries, the first calculates the average
+# salary for employees in London as "Office_city." The second calculates the average
+# salary for employes in Seattle as "Office_city2." This can help with comparaing 
+# salaries in different locations for recruitment and cost analysis.
 
 union select 'SEATTLE' as Office_city2, avg(salary) as average from Employees where 
 upper(City) = 'SEATTLE'
 
-
+# Retrieves product names from "Products" table where the associated product IDs
+# from the subquery from "OrderDetails" table where the quantity is greater than
+# or equal to 120. This aids in inventory management, by focusing on products with 
+# significant sales volume, the organization can optimize inventory and marketing
+# strategies to maximize profit.
 
 select productName from Products
 where productid in
 (select ProductID from OrderDetails where Quantity >= 120)
 
-#Select Distinct
+# Retrieves company name and city from "Suppliers" table where the uppercase version
+# of city matches any distinct uppercase cities from "Employees" table. This identifies
+# suppliers in cities where employees of the organization reside. This can create 
+# local relationships and establish partnerships which can reduce shipping costs. 
 
 select companyName, city
 from Suppliers
 where upper(city) in (select DISTINCT upper(city) from Employees)
+
+# This code retrieves distinct last names, first names, and region descriptions from
+# employees who are associated with territories in the 'Western' region. This is done
+# by joining tables; "Employees," "EmployeeTerritories," "Territories," and "Region." 
+# This query identifies employees who are responsible for territories within the 
+# 'Western' region. It aids in monitoring and managing assignments in alignment
+# with the organization's regional strategies.
 
 select distinct lastname, firstname, regionDescription from
 Employees e join EmployeeTerritories et
@@ -50,22 +83,44 @@ on
 t.RegionID = r.RegionID
 where RegionDescription = 'Western'
 
+# This query uses a left join between the "Customers" with aliased 'c' and "Orders"
+# aliased with 'o' tables based on "CustomerID" to associated customer information
+# with their respective orders. The query identifies customers located in 'Paris'
+# and 'Madrid' who have placed orders. This gives insight into customer behavior
+# in these cities and potentially tailor its services or offerings to meet the needs
+# of customers in these locations.
+
 select CompanyName, city, orderid
 from Customers c left join orders o
 on c.CustomerID = o.CustomerID
 where city in ('Paris', 'Madrid')
 
+# Using 'Union' operator, the first query selects "companyname" and "phone" from "Shippers"
+# table, while the second query selects the same columns from the "Suppliers" table.
+# The result is ordered by "CompanyName" column. This can be used for establishing a 
+# centralized directory or contact list for business partners. Additionally, this will
+# streamline communication and coordination with both shippers and suppliers.
 
 select companyname, phone from Shippers
 union
 select companyname, phone from Suppliers
 order by CompanyName
 
+# The code retrieves last name, first name, and country from "Employees" table. Filtering
+# the results to include employees whose salary is greater than the average salary
+# in the same country. This ensures that compensation decisions are made in consideration
+# of regional salary competitiveness. 
+
 select lastname, firstname, salary, country
 from Employees e1
 where salary > (select avg(salary) from Employees e2 where e1.Country = e2.Country)
 
-#Joins
+# Uses an Inner Join between "Products" and "Suppliers" table with aliases 'p' and 's'
+# respectively based on "SupplierID" column. The result includes products whose suppliers
+# are located in either 'USA' or 'Norway' and ordered by product name. This will aid in 
+# procurement decisions, quality control, and understanding the geographic distribution
+# of suppliers.
+
 select productName, country
 from Products p join Suppliers s
 on p.SupplierID = s.SupplierID
