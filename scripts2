@@ -1,0 +1,59 @@
+# The code retrieves information on products through an inner join. Identifying products
+# that are out of stock in stores located in Texas. This helps with replenshment planning
+# leading to improved business operations and profitability.
+
+SELECT product_name, state, quantity
+FROM Production.Products P INNER JOIN Production.Stocks S
+  ON P.product_id = S.product_id
+  INNER JOIN Sales.Stores ST
+  ON S. store_id = ST.store_id
+WHERE ST.store = 'TX' AND S.quantity = 0
+ORDER BY product_name;
+
+# This code creates a view called "UnshippedRowlettBikesOrdersView" which combines data
+# from tables: "Sales.Orders" (aliased as 'OD'), "Sales.Customers" (aliased as 'CR'),
+# and "Sales.Stores" (aliased as 'ST'). The goal of the view is to consolidate information
+# on orders made by customers at the 'Rowlett Bikes' store that are currently unshipped and
+# have an order status of 1. When this view is run, it will output an up-to-date list
+# of unshipped orders from the specified store.
+
+CREATE VIEW UnshippedRowlettBikesOrdersView
+AS
+SELECT order_id, first_name, last_name, order_date
+FROM Sales.Orders OD INNER JOIN Sales. Customers CR
+  ON OD.customer_id = CR.customer_id
+  INNER JOIN Sales.Stores ST
+  ON OD.store_id = ST.store_id
+WHERE ST.store_name = 'Rowlett Bikes'
+  AND OD.order_status = 1;
+GO
+SELECT * FROM UnshippedRowlettBikesOrdersView;
+
+# This code defines a stored procedure that accepts a parameter, @Discount, which is a 
+# decimal value with two decimal places (DECIMAL(4,2)) representing a threshold discount
+# value. The procedure calculates and returns the average and standard deviation of 
+# discounts for products grouped by brand. The result is then filtered to include
+# brands with an average greater than or equal to the specified @Discount value and
+# orders the result alphabetically by brand name. This gives the user a reusable and
+# parameterized tool for analyzing and identifying brands with discounts above a specific
+# threshold. When executed it retrieves brands meeting the criteria, helping with data-
+# driven decisions about discounting strategies and product promotions.
+
+CREATE PROCEDURE GetBrandAverageSalesDiscountAboveValue
+@Discount DECIMAL(4,2)
+AS
+SELECT brand_name,
+  AVG(discount) AS DiscAvg,
+  STDEV(discount) AS DiscStdDev
+FROM Production.Brands BR INNER JOIN Production.Products PR
+ON BR.brand_id = PR.brand_id
+INNER JOIN Sales.Order_Items OI
+ON PR.product_id = OI.product_id
+GROUP BY brand_name
+HAVING AVG(discount) >= @Discount
+ORDER BY brand_name;
+
+EXEC GetBrandAverageSalesDiscountAboveValue @Discount=0.11;
+
+
+
